@@ -5,8 +5,13 @@ import { UserValidation } from "./user.validation";
 
 const router = express.Router();
 
-router.post(
-  "/create-user",
+router.get(
+    "/",
+    UserController.getAllFromDB
+)
+
+
+router.post("/create-user",
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createUserValidationSchema.parse(JSON.parse(req.body.data));
@@ -15,8 +20,7 @@ router.post(
   UserController.createUser
 );
 
-router.post(
-    "/create-host",
+router.post("/create-host",
     // auth(UserRole.SUPER_ADMIN), // optional auth
     fileUploader.upload.single('file'),
     (req: Request, res: Response, next: NextFunction) => {
@@ -25,8 +29,7 @@ router.post(
     }
 );
 
-router.post(
-    "/create-admin",
+router.post("/create-admin",
     // auth(UserRole.SUPER_ADMIN), // optional auth
     fileUploader.upload.single('file'),
     (req: Request, res: Response, next: NextFunction) => {
