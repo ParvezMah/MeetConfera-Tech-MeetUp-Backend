@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 
 import { AuthService } from "./auth.service";
-import catchAsync from "../../../shared/catchAsync";
-import sendResponse from "../../../shared/sendResponse";
+import catchAsync from "../../shared/catchAsync";
+import sendResponse from "../../shared/sendResponse";
 
 const login = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthService.login(req.body);

@@ -9,10 +9,20 @@ router.post(
   "/create-user",
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
-    req.body = UserValidation.createUserSchema.parse(JSON.parse(req.body.data));
+    req.body = UserValidation.createUserValidationSchema.parse(JSON.parse(req.body.data));
     next();
   },
   UserController.createUser
+);
+
+router.post(
+    "/create-host",
+    // auth(UserRole.SUPER_ADMIN), // optional auth
+    fileUploader.upload.single('file'),
+    (req: Request, res: Response, next: NextFunction) => {
+        req.body = UserValidation.createHostValidationSchema.parse(JSON.parse(req.body.data));
+        return UserController.createHost(req, res, next);
+    }
 );
 
 export const UserRoutes = router;

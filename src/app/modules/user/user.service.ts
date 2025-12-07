@@ -3,7 +3,7 @@ import { Request } from "express";
 import config from "../../../config";
 import { fileUploader } from "../../helpers/fileUploader";
 import prisma from "../../shared/prisma";
-import { UserRole } from "@prisma/client";
+import { Host, UserRole } from "@prisma/client";
 
 const createUser = async (req: Request) => {
   if (req.file) {
@@ -28,6 +28,35 @@ const createUser = async (req: Request) => {
   return result;
 };
 
+const createHost = async (req: Request): Promise<Host> => {
+    if (req.file) {
+        const uploaded = await fileUploader.uploadToCloudinary(req.file);
+        req.body.host.profilePhoto = uploaded?.secure_url;
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, Number(config.salt_round));
+
+    const result = await prisma.$transaction(async (tx) => {
+        await tx.user.create({
+            data: {
+                email: req.body.host.email,
+                password: hashedPassword,
+                role: UserRole.HOST,
+                contactNumber: req.body.host.contactNumber
+            },
+        });
+
+        const createdHost = await tx.host.create({
+            data: req.body.host,
+        });
+
+        return createdHost;
+    });
+
+    return result;
+};
+
 export const UserService = {
   createUser,
+  createHost
 };

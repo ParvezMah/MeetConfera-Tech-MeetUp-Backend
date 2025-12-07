@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createUserSchema = z.object({
+export const createUserValidationSchema = z.object({
   password: z.string(),
   user: z.object({
     email: z.string({error: "Email is required!"}),
@@ -10,9 +10,21 @@ export const createUserSchema = z.object({
   }),
 });
 
+const createHostValidationSchema = z.object({
+    password: z.string({ error: "Password is required" }),
+    host: z.object({
+        name: z.string({ error: "Name is required!" }),
+        email: z.string({ error: "Email is required!" }).email(),
+        contactNumber: z.string({ error: "Contact Number is required!" }),
+        organization: z.string().optional(),
+        profilePhoto: z.string().optional(),
+    }),
+});
+
 
 
 // TypeScript type for the schema
 export const UserValidation = {
-    createUserSchema
+    createUserValidationSchema,
+    createHostValidationSchema
 }

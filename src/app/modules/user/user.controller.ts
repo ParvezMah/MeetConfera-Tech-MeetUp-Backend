@@ -16,6 +16,17 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+const createHost = catchAsync(async (req: Request, res: Response) => {
+    const result = await UserService.createHost(req);
+    sendResponse(res, {
+        statusCode: 201,
+        success: true,
+        message: "Host created successfully!",
+        data: result
+    });
+});
+
 export const UserController = {
-    createUser
+    createUser,
+    createHost
 };
