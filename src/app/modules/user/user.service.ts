@@ -116,13 +116,18 @@ const getAllFromDB = async (params: any, options: any) => {
     }
 
     console.log(andConditions)
+
+    const whereConditions: Prisma.UserWhereInput = andConditions.length > 0 ? {
+        AND: andConditions
+    } : {}
+
     const result = await prisma.user.findMany({
         // Pagination
         skip, 
         take: limit,
         // Searching
         where : {
-            AND: andConditions
+            AND: whereConditions
         },
         // Sorting
         orderBy: {
@@ -130,7 +135,18 @@ const getAllFromDB = async (params: any, options: any) => {
         }
     });
 
-    return result
+    const total = await prisma.user.count({
+        where: whereConditions
+    });
+
+    return {
+        meta: {
+            page,
+            limit,
+            total
+        },
+        data: result
+    };
 }
 
 export const UserService = {
