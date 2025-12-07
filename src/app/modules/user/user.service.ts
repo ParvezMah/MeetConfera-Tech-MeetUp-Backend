@@ -3,7 +3,9 @@ import { Request } from "express";
 import config from "../../../config";
 import { fileUploader } from "../../helpers/fileUploader";
 import prisma from "../../shared/prisma";
-import { Admin, Host, UserRole } from "@prisma/client";
+import { Admin, Host, Prisma, UserRole } from "@prisma/client";
+import { paginationHelper } from "../../helpers/paginationHelper";
+import { userSearchableFields } from "./user.constant";
 
 const createUser = async (req: Request) => {
   if (req.file) {
@@ -84,32 +86,48 @@ const createAdmin = async (req: Request): Promise<Admin> => {
     return result;
 };
 
-const getAllFromDB = async ({page, limit, searchTerm, sortBy, sortOrder, role, status}: {page:number, limit:number, searchTerm: any, sortBy: any, sortOrder: any, role: any, status: any}) => {
-    const pageNumber = page || 1;
-    const limitNumber = limit || 10;
-    const skip = (pageNumber-1)*limitNumber;
+const getAllFromDB = async (params: any, options: any) => {
+    const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options)
+    const { searchTerm, ...filterData } = params;
+
+    const andConditions: Prisma.UserWhereInput[] = [];
+
+    // Searching
+    if (searchTerm) {
+        andConditions.push({
+            OR: userSearchableFields.map(field => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: "insensitive"
+                }
+            }))
+        })
+    }
+
+    // Filtering
+    if (Object.keys(filterData).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterData).map(key => ({
+                [key]: {
+                    equals: (filterData as any)[key]
+                }
+            }))
+        })
+    }
+
+    console.log(andConditions)
     const result = await prisma.user.findMany({
         // Pagination
         skip, 
-        take: limitNumber,
+        take: limit,
         // Searching
         where : {
-            email : {
-                contains: searchTerm,
-                mode: "insensitive",
-            },
-            // Filtering
-            role : role,
-            status: status
+            AND: andConditions
         },
         // Sorting
-        orderBy: sortBy && sortOrder 
-        ? {
+        orderBy: {
             [sortBy]: sortOrder
         }
-        : {
-            createdAt: 'desc',
-        },
     });
 
     return result
