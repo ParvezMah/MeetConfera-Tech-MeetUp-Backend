@@ -21,10 +21,21 @@ const createHostValidationSchema = z.object({
     }),
 });
 
+const createAdminValidationSchema = z.object({
+    password: z.string({ error: "Password is required" }),
+    admin: z.object({
+        name: z.string({ error: "Name is required!" }),
+        email: z.string({ error: "Email is required!" }).email(),
+        contactNumber: z.string({ error: "Contact Number is required!" }),
+        profilePhoto: z.string().optional(),
+    }),
+});
+
 
 
 // TypeScript type for the schema
 export const UserValidation = {
     createUserValidationSchema,
-    createHostValidationSchema
+    createHostValidationSchema,
+    createAdminValidationSchema
 }
