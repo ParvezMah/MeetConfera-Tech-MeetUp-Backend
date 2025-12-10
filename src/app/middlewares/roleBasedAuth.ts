@@ -10,7 +10,7 @@ const roleBasedAuth = (...roles: string[]) => {
             const token = req.cookies.accessToken;
 
             if (!token) {
-                throw new Error("You are not authorized!")
+                throw new Error("You are not authorized to access this route!")
             }
 
             const verifyUser = jwtHelper.verifyToken(token, config.jwt.jwt_secret as string);
@@ -18,7 +18,7 @@ const roleBasedAuth = (...roles: string[]) => {
             req.user = verifyUser;
 
             if (roles.length && !roles.includes(verifyUser.role)) {
-                throw new Error("You are not authorized!")
+                throw new Error("You are not authorized to access this route!")
             }
 
             next();

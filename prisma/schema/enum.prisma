@@ -16,3 +16,18 @@ enum Gender {
   FEMALE
   OTHER
 }
+
+enum EventStatus {
+  OPEN
+  CLOSED
+  CANCELED
+  RUNNING
+}
+
+
+enum UserEventStatus {
+  JOINED
+  CANCELLED
+  REJECTED
+  WAITING
+}

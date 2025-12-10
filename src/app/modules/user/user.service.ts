@@ -64,7 +64,7 @@ const createAdmin = async (req: Request): Promise<Admin> => {
         req.body.admin.profilePhoto = uploaded?.secure_url;
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, Number(config.salt_round));
 
     const result = await prisma.$transaction(async (tx) => {
         await tx.user.create({
