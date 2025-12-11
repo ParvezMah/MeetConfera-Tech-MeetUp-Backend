@@ -54,6 +54,7 @@ const getMyEvents = async (hostId: string, filters: any, options: IOptions) => {
             options.sortBy && options.sortOrder
                 ? { [options.sortBy]: options.sortOrder }
                 : { date: "desc" },
+        // Relation to Participant Table 
         include: { participants: true }
     });
 
@@ -66,9 +67,9 @@ const getMyEvents = async (hostId: string, filters: any, options: IOptions) => {
 };
 
 // Host cav View participants of a specific event
-const getEventParticipants = async (eventId: string, hostId: string) => {
+const getAllParticipantsOfThisEvents = async (eventId: string, hostId: string) => {
     // Ensure event belongs to logged-in host
-    const event = await prisma.event.findFirst({
+    const result = await prisma.event.findFirst({
         where: { id: eventId, hostId },
         include: {
             participants: {
@@ -79,21 +80,9 @@ const getEventParticipants = async (eventId: string, hostId: string) => {
         },
     });
 
-    if (!event) throw new Error("Event not found or you are not authorized!");
+    if (!result) throw new Error("Event not found or you are not authorized!");
 
-    // return event.participants.map(p => ({
-    //     id: p.user.id,
-    //     name: p.user.email, // You can add other fields like name, email
-    //     status: p.status,
-    //     joinedAt: p.joinedAt,
-    // }));
-
-    // Dummy payments message when table will created dummy will removed
-    return [
-        {
-            message: "No Participants table is created in prisma.",
-        }
-    ];
+    return result
 };
 
 // Host can receive Payments from participants
@@ -141,7 +130,7 @@ const deleteEvent = async (hostId: string, eventId: string) => {
 export const HostService = {
   getAllHosts,
   getMyEvents,
-  getEventParticipants,
+  getAllParticipantsOfThisEvents,
   getEventPayments,
   updateEvent,
   deleteEvent

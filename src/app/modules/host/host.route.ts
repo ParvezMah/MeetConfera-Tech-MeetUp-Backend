@@ -20,14 +20,10 @@ router.get("/my-events",
 )
 
 // Host cav View participants of a specific event
-router.get("/:eventId/participants",  // To see the must add participants to events
+router.get("/:eventId/participants", 
     roleBasedAuth(UserRole.HOST),
-    HostController.getEventParticipants
-    // {
-    //     "success": true,
-    //     "message": "Event participants fetched successfully!",
-    //     "data": []
-    // }
+    HostController.getAllParticipantsOfThisEvents
+
 );
 
 // Host can receive Payments from participants
@@ -48,6 +44,18 @@ router.delete("/:eventId",
     roleBasedAuth(UserRole.HOST),
     HostController.deleteEvent
 );
+
+
+// PARTICIPANT MANAGEMENT (HOST ONLY)
+
+
+// : Approve participant (Host only)
+    // Host wil check first that the participants paid or not
+        // if paid -> Approved
+
+// : reject participant (Host only)
+    // Host wil check first that the participants paid or not
+        // else -> rejected
 
 
 export const HostRoutes = router;

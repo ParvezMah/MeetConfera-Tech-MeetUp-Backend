@@ -42,7 +42,7 @@ const getMyEvents = catchAsync(async (req: Request & { user?: any }, res: Respon
     });
 });
 // Host can view their own participants who joined thier event
-const getEventParticipants = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+const getAllParticipantsOfThisEvents = catchAsync(async (req: Request & { user?: any }, res: Response) => {
     const { eventId } = req.params;
 
     // Getting Logged in Host
@@ -51,7 +51,7 @@ const getEventParticipants = catchAsync(async (req: Request & { user?: any }, re
       where: {email : userEmail}
     })
 
-    const result = await HostService.getEventParticipants(eventId, host?.id as string);
+    const result = await HostService.getAllParticipantsOfThisEvents(eventId, host?.id as string);
 
     sendResponse(res, {
         statusCode: 200,
@@ -125,7 +125,7 @@ const deleteEvent = catchAsync(async (req: Request & { user?: any }, res: Respon
 export const HostController = {
   getHosts,
   getMyEvents,
-  getEventParticipants,
+  getAllParticipantsOfThisEvents,
   getEventPayments,
   updateEvent,
   deleteEvent

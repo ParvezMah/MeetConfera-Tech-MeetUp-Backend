@@ -15,7 +15,7 @@ model User {
     updatedAt          DateTime       @updatedAt
     admin              Admin?
     host               Host?
-    participants       Pariticipant[]
+    participants       Participant[]
 
     @@map("users")
 }
@@ -51,3 +51,17 @@ model Host {
 
     @@map("hosts")
 }
+
+
+model Participant {
+    id       String          @id @default(uuid())
+    userId   String
+    user     User            @relation(fields: [userId], references: [id])
+    event    Event           @relation(fields: [eventId], references: [id])
+    eventId  String
+    status   participantStatus @default(JOINED)
+    joinedAt DateTime        @default(now())
+
+    @@map("participants")
+}
+
