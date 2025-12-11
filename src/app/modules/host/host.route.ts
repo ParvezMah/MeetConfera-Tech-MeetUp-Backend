@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Admin & Super_Admin call view all Host
 router.get("/",
-    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.getHosts
 );
 

@@ -8,6 +8,7 @@ import { EventService } from "./event.service"
 
 // Create Event
 const createEvent = catchAsync(async (req: Request, res: Response) => {
+  console.log("req.body : ", req.body)
   const result = await EventService.createEvent(req.body)
 
   sendResponse(res, {

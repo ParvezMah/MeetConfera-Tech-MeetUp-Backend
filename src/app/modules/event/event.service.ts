@@ -5,7 +5,19 @@ import { IOptions, paginationHelper } from "../../helpers/paginationHelper";
 
 
 const createEvent = async (payload: ICreateEvent) => {
-  return await prisma.event.create({ data: payload })
+
+  console.log({payload})
+  // 1. Check if host exists
+  const hostExists = await prisma.host.findUnique({
+    where: { id: payload.hostId }
+  });
+
+  if (!hostExists) {
+    throw new Error("Host not found. Cannot create event.");
+  }
+
+
+  return await prisma.event.create({ data: payload as any })
 }
 
 

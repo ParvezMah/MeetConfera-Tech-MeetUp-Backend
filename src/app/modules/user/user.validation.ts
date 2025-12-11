@@ -6,7 +6,7 @@ export const createUserValidationSchema = z.object({
     email: z.string({error: "Email is required!"}),
     name: z.string({error: "Name is required!"}),
     contactNumber: z.string({error: "Contact number is required!"}),
-    address: z.string({error: "Address is required!"})
+    location: z.string({error: "Location is required!"})
   }),
 });
 

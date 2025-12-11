@@ -19,10 +19,14 @@ const createUser = async (req: Request) => {
 
   const result = await prisma.user.create({
     data: {
+      name: req.body.user.name,
       email: req.body.user.email,
       password: hashPassword,
+      // bio: req.body.user.bio, // Pore Add korbo                           
+      // interests: req.body.user.interests, // Pore Add korbo
       contactNumber: req.body.user.contactNumber,
       profilePhoto: req.body.user.profilePhoto || null,
+      // location: req.body.user.location, // Pore Add korbo
       role: req.body.user.role || UserRole.USER,
     },
   });
@@ -41,6 +45,7 @@ const createHost = async (req: Request): Promise<Host> => {
     const result = await prisma.$transaction(async (tx) => {
         await tx.user.create({
             data: {
+                name: req.body.host.name,
                 email: req.body.host.email,
                 password: hashedPassword,
                 role: UserRole.HOST,
@@ -69,6 +74,7 @@ const createAdmin = async (req: Request): Promise<Admin> => {
     const result = await prisma.$transaction(async (tx) => {
         await tx.user.create({
             data: {
+                name: req.body.admin.name,
                 email: req.body.admin.email,
                 password: hashedPassword,
                 role: UserRole.ADMIN,

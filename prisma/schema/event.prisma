@@ -1,29 +1,32 @@
 model Event {
-    id              String      @id @default(uuid())
-    title           String
+    id              String         @id @default(uuid())
+    eventName       String
     description     String?
     date            DateTime
+    location        String?
+    minParticipants Int
     maxParticipants Int
-    status          EventStatus @default(OPEN)
+    status          EventStatus    @default(OPEN)
     image           String?
-    category        String?
+    joiningFee      Int?
+    category        EventCategory
     hostId          String
-    host            Host        @relation(fields: [hostId], references: [id])
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
-    participants    UserEvent[]
+    host            Host           @relation(fields: [hostId], references: [id])
+    createdAt       DateTime       @default(now())
+    updatedAt       DateTime       @updatedAt
+    participants    Pariticipant[]
 
     @@map("events")
 }
 
-model UserEvent {
+model Pariticipant {
     id       String          @id @default(uuid())
     userId   String
     user     User            @relation(fields: [userId], references: [id])
     event    Event           @relation(fields: [eventId], references: [id])
     eventId  String
-    status   UserEventStatus @default(JOINED)
+    status   participantStatus @default(JOINED)
     joinedAt DateTime        @default(now())
 
-    @@map("user_events")
+    @@map("participants")
 }

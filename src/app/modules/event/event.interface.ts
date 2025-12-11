@@ -1,9 +1,13 @@
 export interface ICreateEvent {
-  title: string
-  description?: string
-  date: string
-  maxParticipants: number
-  image?: string
-  category?: string
-  hostId: string
+  eventName: string;
+  description?: string;
+  date: string;
+  location?: string;
+  minParticipants: number;
+  maxParticipants: number;
+  status?: string;
+  image?: string;
+  joiningFee?: number;
+  category: string;
+  hostId: string;
 }
