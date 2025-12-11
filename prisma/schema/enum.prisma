@@ -50,3 +50,15 @@ enum EventCategory {
   SOFTWARE_ENGINEERING
   OTHER
 }
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentGatewayProvider {
+  STRIPE
+  SSLCOMMERZ
+}

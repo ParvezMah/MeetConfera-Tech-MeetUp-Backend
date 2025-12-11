@@ -10,9 +10,10 @@ const router = Router();
 
 // Join event as Participant
 router.post("/join",
-//   roleBasedAuth(UserRole.USER),
+  roleBasedAuth(UserRole.USER),
   validateRequest(ParticipantValidation.createParticipantSchema),
-  ParticipantController.joinEventAsParticipant
+  // ParticipantController.joinEventAsParticipant // Without Payment
+  ParticipantController.joinEventAsParticipantWithPayment // With Payment
 );
 
 // getAllParticipantsOfThisEvents - API Get All participants impletented on Host Module

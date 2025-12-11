@@ -1,0 +1,16 @@
+model Payment {
+    id            String                 @id @default(uuid())
+    userId        String
+    eventId       String
+    participantId String                 @unique
+    amount        Int
+    status        PaymentStatus          @default(PENDING)
+    gatewayName   PaymentGatewayProvider
+    transactionId String?
+    gatewayData   Json?
+    user          User                   @relation(fields: [userId], references: [id])
+    event         Event                  @relation(fields: [eventId], references: [id])
+    participant   Participant            @relation(fields: [participantId], references: [id])
+
+    @@map("payments")
+}

@@ -2,7 +2,7 @@ import z from "zod";
 
 const createParticipantSchema = z.object({
   body: z.object({
-    userId: z.string(),
+    // userId: z.string(),
     eventId: z.string(),
   }),
 });

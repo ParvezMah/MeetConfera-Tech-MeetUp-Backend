@@ -15,6 +15,7 @@ model Event {
     createdAt       DateTime       @default(now())
     updatedAt       DateTime       @updatedAt
     participants    Participant[]
+    payments        Payment[]
 
     @@map("events")
 }

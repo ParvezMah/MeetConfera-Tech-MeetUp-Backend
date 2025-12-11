@@ -21,4 +21,6 @@ export default {
         reset_pass_secret: process.env.RESET_PASS_TOKEN,
         reset_pass_token_expires_in: process.env.RESET_PASS_TOKEN_EXPIRES_IN
     },
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    stripeWebhookSecretKey: process.env.STRIPE_WEBHOOK_SECRET_KEY,
 }
