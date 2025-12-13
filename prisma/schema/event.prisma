@@ -16,6 +16,7 @@ model Event {
     updatedAt       DateTime       @updatedAt
     participants    Participant[]
     payments        Payment[]
+    reviews         Review[]
 
     @@map("events")
 }

@@ -43,12 +43,14 @@ model Host {
     profilePhoto  String?
     contactNumber String
     organization  String?
+    averageRating Float    @default(0)
     isDeleted     Boolean  @default(false)
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 
     user   User    @relation(fields: [email], references: [email])
     events Event[] // one-to-mane relation: Host->Even
+    reviews Review[]
 
     @@map("hosts")
 }
@@ -62,6 +64,7 @@ model Participant {
     payment   Payment?
     status    participantStatus @default(JOINED)
     joinedAt  DateTime          @default(now())
+    reviews Review[]
 
     @@map("participants")
 }

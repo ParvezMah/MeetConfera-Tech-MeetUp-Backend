@@ -97,6 +97,9 @@ import { v4 as uuidv4 } from "uuid";
 // };
 
 
+// stripe login
+// stripe listen --forward-to localhost:5000/webhook
+// stripe trigger payment_intent.succeeded
 
 
 interface JoinEventPayload {
@@ -146,7 +149,7 @@ const joinEventAsParticipantWithPayment = async (payload: JoinEventPayload) => {
         line_items: [
           {
             price_data: {
-              currency: "usd",
+              currency: "bdt",
               product_data: {
                 name: event.eventName,
                 description: event.description || "",

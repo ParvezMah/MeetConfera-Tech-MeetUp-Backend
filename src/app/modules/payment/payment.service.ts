@@ -53,8 +53,6 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
             const session = event.data.object as any;
 
             const participantId = session.metadata?.participantId;
-            const userId = session.metadata?.userId;
-            const eventId = session.metadata?.eventId;
             const paymentId = session.metadata?.paymentId;
 
             if (!participantId || !paymentId) {
