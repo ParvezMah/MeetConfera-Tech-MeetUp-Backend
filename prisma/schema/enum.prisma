@@ -1,8 +1,8 @@
 enum UserRole {
-    SUPER_ADMIN
-    USER
-    HOST
-    ADMIN
+  SUPER_ADMIN
+  USER
+  HOST
+  ADMIN
 }
 
 enum UserStatus {
@@ -24,14 +24,12 @@ enum EventStatus {
   COMPLETED
 }
 
-
 enum participantStatus {
   JOINED
   CANCELLED
   REJECTED
   WAITING
 }
-
 
 enum EventCategory {
   AI

@@ -22,12 +22,9 @@ const createUser = async (req: Request) => {
       name: req.body.user.name,
       email: req.body.user.email,
       password: hashPassword,
-      // bio: req.body.user.bio, // Pore Add korbo                           
-      // interests: req.body.user.interests, // Pore Add korbo
       contactNumber: req.body.user.contactNumber,
       profilePhoto: req.body.user.profilePhoto || null,
-      // location: req.body.user.location, // Pore Add korbo
-      role: req.body.user.role || UserRole.USER,
+      location: req.body.user.location, 
     },
   });
 

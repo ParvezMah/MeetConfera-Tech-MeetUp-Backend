@@ -1,23 +1,22 @@
 model Event {
-    id              String         @id @default(uuid())
-    eventName       String
-    description     String?
-    date            DateTime
-    location        String?
-    minParticipants Int
-    maxParticipants Int
-    status          EventStatus    @default(OPEN)
-    image           String?
-    joiningFee      Int?
-    category        EventCategory
-    hostId          String
-    host            Host           @relation(fields: [hostId], references: [id])
-    createdAt       DateTime       @default(now())
-    updatedAt       DateTime       @updatedAt
-    participants    Participant[]
-    payments        Payment[]
-    reviews         Review[]
+  id              String        @id @default(uuid())
+  description     String?
+  date            DateTime
+  maxParticipants Int
+  status          EventStatus   @default(OPEN)
+  image           String?
+  hostId          String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  eventName       String
+  joiningFee      Int?
+  location        String?
+  minParticipants Int
+  category        EventCategory
+  host            Host          @relation(fields: [hostId], references: [id])
+  participants    Participant[]
+  payments        Payment[]
+  reviews         Review[]
 
-    @@map("events")
+  @@map("events")
 }
-
