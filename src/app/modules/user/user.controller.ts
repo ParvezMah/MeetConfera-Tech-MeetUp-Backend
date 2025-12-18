@@ -4,6 +4,8 @@ import { UserService } from "./user.service";
 import sendResponse from "../../shared/sendResponse";
 import pick from "../../helpers/pick";
 import { userFilterableFields } from "./user.constant";
+import httpStatus from "http-status"
+import { IAuthUser } from "../../types/common";
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
     const result = await UserService.createUser(req);
@@ -51,9 +53,40 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const getMyProfile = catchAsync(async (req: Request & { user?: IAuthUser }, res: Response) => {
+
+    const user = req.user;
+
+    const result = await UserService.getMyProfile(user as IAuthUser);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "My profile data fetched!",
+        data: result
+    })
+});
+
+const updateMyProfie = catchAsync(async (req: Request & { user?: IAuthUser }, res: Response) => {
+
+    const user = req.user;
+
+    const result = await UserService.updateMyProfie(user as IAuthUser, req);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "My profile updated!",
+        data: result
+    })
+});
+
+
 export const UserController = {
     createUser,
     createHost,
     createAdmin,
-    getAllFromDB
+    getAllFromDB,
+    getMyProfile,
+    updateMyProfie
 };
