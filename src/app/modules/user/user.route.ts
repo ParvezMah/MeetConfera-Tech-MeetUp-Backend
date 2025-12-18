@@ -6,13 +6,19 @@ import roleBasedAuth from "../../middlewares/roleBasedAuth";
 import { UserRole } from "@prisma/client";
 
 const router = express.Router();
-
+// Get all User
 router.get(
     "/",
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN), // Only access for ADMIN & SUPER_ADMIN
     UserController.getAllFromDB
 )
 
+// Get My Profile
+router.get(
+    '/me',
+    roleBasedAuth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.HOST, UserRole.USER),
+    UserController.getMyProfile
+)
 
 router.post("/create-user",
   fileUploader.upload.single("file"),
@@ -38,6 +44,16 @@ router.post("/create-admin",
     (req: Request, res: Response, next: NextFunction) => {
         req.body = UserValidation.createAdminValidationSchema.parse(JSON.parse(req.body.data));
         return UserController.createAdmin(req, res, next);
+    }
+);
+
+router.patch(
+    "/update-my-profile",
+    roleBasedAuth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.HOST, UserRole.USER),
+    fileUploader.upload.single('file'),
+    (req: Request, res: Response, next: NextFunction) => {
+        req.body = JSON.parse(req.body.data)
+        return UserController.updateMyProfie(req, res, next)
     }
 );
 

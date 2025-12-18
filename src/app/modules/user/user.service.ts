@@ -3,9 +3,11 @@ import { Request } from "express";
 import config from "../../../config";
 import { fileUploader } from "../../helpers/fileUploader";
 import prisma from "../../shared/prisma";
-import { Admin, Host, Prisma, UserRole } from "@prisma/client";
+import { Admin, Host, Prisma, UserRole, UserStatus } from "@prisma/client";
 import { paginationHelper } from "../../helpers/paginationHelper";
 import { userSearchableFields } from "./user.constant";
+import { IAuthUser } from "../../types/common";
+
 
 const createUser = async (req: Request) => {
   if (req.file) {
@@ -152,9 +154,153 @@ const getAllFromDB = async (params: any, options: any) => {
     };
 }
 
+const getMyProfile = async (user: IAuthUser) => {
+    const userInfo = await prisma.user.findUniqueOrThrow({
+        where: {
+            email: user?.email,
+            status: UserStatus.ACTIVE,
+        },
+        select: {
+            id: true,
+            email: true,
+            needPasswordChange: true,
+            role: true,
+            status: true,
+        },
+    });
+
+    let profileInfo;
+
+    if (userInfo.role === UserRole.SUPER_ADMIN) {
+        profileInfo = await prisma.admin.findUnique({
+            where: {
+                email: userInfo.email,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePhoto: true,
+                contactNumber: true,
+                isDeleted: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+    } else if (userInfo.role === UserRole.ADMIN) {
+        profileInfo = await prisma.admin.findUnique({
+            where: {
+                email: userInfo.email,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePhoto: true,
+                contactNumber: true,
+                isDeleted: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+    } else if (userInfo.role === UserRole.HOST) {
+        profileInfo = await prisma.host.findUnique({
+            where: {
+                email: userInfo.email,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePhoto: true,
+                contactNumber: true,
+                location: true,
+                averageRating: true,
+                isDeleted: true,
+                createdAt: true,
+                updatedAt: true,
+                events: true
+            },
+        });
+    } else if (userInfo.role === UserRole.USER) {
+        profileInfo = await prisma.participant.findFirst({
+            where: {
+                userId: userInfo.id,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePhoto: true,
+                contactNumber: true,
+                location: true,
+                isDeleted: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+    }
+
+    return { ...userInfo, ...profileInfo };
+};
+
+const updateMyProfie = async (user: IAuthUser, req: Request) => {
+    const userInfo = await prisma.user.findUniqueOrThrow({
+        where: {
+            email: user?.email,
+            status: UserStatus.ACTIVE
+        }
+    });
+
+    const file = req.file;
+    if (file) {
+        const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+        req.body.profilePhoto = uploadToCloudinary?.secure_url;
+    }
+
+    let profileInfo;
+
+    if (userInfo.role === UserRole.SUPER_ADMIN) {
+        profileInfo = await prisma.admin.update({
+            where: {
+                email: userInfo.email
+            },
+            data: req.body
+        })
+    }
+    else if (userInfo.role === UserRole.ADMIN) {
+        profileInfo = await prisma.admin.update({
+            where: {
+                email: userInfo.email
+            },
+            data: req.body
+        })
+    }
+    else if (userInfo.role === UserRole.HOST) {
+        profileInfo = await prisma.host.update({
+            where: {
+                email: userInfo.email
+            },
+            data: req.body
+        })
+    }
+    else if (userInfo.role === UserRole.USER) {
+        profileInfo = await prisma.participant.update({
+            where: {
+                id: userInfo.id
+            },
+            data: req.body
+        })
+    }
+
+    return { ...profileInfo };
+}
+
 export const UserService = {
   createUser,
   createHost,
   createAdmin,
-  getAllFromDB
+  getAllFromDB,
+  getMyProfile,
+  updateMyProfie
 };
