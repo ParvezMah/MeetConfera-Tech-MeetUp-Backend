@@ -122,8 +122,49 @@ const deleteEvent = catchAsync(async (req: Request & { user?: any }, res: Respon
 });
 
 
-const updateHost = catchAsync(async (req: Request, res: Response) => {
+const updateHost = catchAsync(async (req: Request & { user?: any }, res: Response) => {
     const { id } = req.params;
+
+    // Authorization check
+    const userEmail = req.user?.email;
+    const userRole = req.user?.role;
+
+    if (!userEmail) {
+        return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Forbidden: User not authenticated.",
+            data: null,
+        });
+    }
+
+    // Check if user is the host being updated or has admin role
+    const host = await prisma.host.findUnique({
+        where: { id },
+        select: { email: true }
+    });
+
+    if (!host) {
+        return sendResponse(res, {
+            statusCode: 404,
+            success: false,
+            message: "Host not found.",
+            data: null,
+        });
+    }
+
+    const isOwner = userEmail === host.email;
+    const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
+
+    if (!isOwner && !isAdmin) {
+        return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Forbidden: You do not have permission to update this host.",
+            data: null,
+        });
+    }
+
     const result = await HostService.updateHost(id, req.body);
     
     sendResponse(res, {
@@ -134,8 +175,49 @@ const updateHost = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const deleteHost = catchAsync(async (req: Request, res: Response) => {
+const deleteHost = catchAsync(async (req: Request & { user?: any }, res: Response) => {
     const { id } = req.params;
+
+    // Authorization check
+    const userEmail = req.user?.email;
+    const userRole = req.user?.role;
+
+    if (!userEmail) {
+        return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Forbidden: User not authenticated.",
+            data: null,
+        });
+    }
+
+    // Check if user is the host being deleted or has admin role
+    const host = await prisma.host.findUnique({
+        where: { id },
+        select: { email: true }
+    });
+
+    if (!host) {
+        return sendResponse(res, {
+            statusCode: 404,
+            success: false,
+            message: "Host not found.",
+            data: null,
+        });
+    }
+
+    const isOwner = userEmail === host.email;
+    const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
+
+    if (!isOwner && !isAdmin) {
+        return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Forbidden: You do not have permission to delete this host.",
+            data: null,
+        });
+    }
+
     const result = await HostService.deleteHost(id);
     
     sendResponse(res, {
@@ -146,8 +228,49 @@ const deleteHost = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const softDeleteHost = catchAsync(async (req: Request, res: Response) => {
+const softDeleteHost = catchAsync(async (req: Request & { user?: any }, res: Response) => {
     const { id } = req.params;
+
+    // Authorization check
+    const userEmail = req.user?.email;
+    const userRole = req.user?.role;
+
+    if (!userEmail) {
+        return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Forbidden: User not authenticated.",
+            data: null,
+        });
+    }
+
+    // Check if user is the host being soft deleted or has admin role
+    const host = await prisma.host.findUnique({
+        where: { id },
+        select: { email: true }
+    });
+
+    if (!host) {
+        return sendResponse(res, {
+            statusCode: 404,
+            success: false,
+            message: "Host not found.",
+            data: null,
+        });
+    }
+
+    const isOwner = userEmail === host.email;
+    const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
+
+    if (!isOwner && !isAdmin) {
+        return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Forbidden: You do not have permission to soft delete this host.",
+            data: null,
+        });
+    }
+
     const result = await HostService.softDeleteHost(id);
     
     sendResponse(res, {

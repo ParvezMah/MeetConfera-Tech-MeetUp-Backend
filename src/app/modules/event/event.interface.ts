@@ -5,6 +5,7 @@ export interface ICreateEvent {
   location?: string;
   maxParticipants: number;
   minParticipants: number;
+  joinedParticipants: number;
   status?: string;
   image?: string;
   joiningFee?: number;

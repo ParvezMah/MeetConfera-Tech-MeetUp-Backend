@@ -17,6 +17,7 @@ const createEvent = async (payload: ICreateEvent, hostId: string) => {
       joiningFee: Number(payload.joiningFee),
       maxParticipants: Number(payload.maxParticipants),
       minParticipants: Number(payload.minParticipants),
+      joinedParticipants: Number(payload.joinedParticipants),
       category: payload.category as EventCategory,
       status: payload.status as EventStatus,
       hostId: hostId, // ✅ Use logged-in host ID
@@ -45,6 +46,24 @@ export default createEvent;
 
 //   return await prisma.event.create({ data: payload as any })
 // }
+
+
+const getEventById = async (eventId: string) => {
+  return await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { host: true }
+  });
+};
+
+
+const isEventOwner = async (eventId: string, hostId: string): Promise<boolean> => {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { hostId: true }
+  });
+
+  return event?.hostId === hostId;
+};
 
 
 const updateEvent = async (eventId: string, payload: Partial<ICreateEvent>) => {
@@ -88,6 +107,8 @@ const deleteEvent = async (eventId: string) => {
 
 export const EventService = {
   createEvent,
+  getEventById,
+  isEventOwner,
   updateEvent,
   deleteEvent
 }

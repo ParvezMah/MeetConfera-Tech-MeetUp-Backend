@@ -17,9 +17,10 @@ const createEvent = catchAsync(async (req: Request & { user?: any }, res: Respon
     const host = await prisma.host.findUnique({
         where : { email : userEmail},
     });
-    const hostId = host?.id;
-  const result = await EventService.createEvent(req.body, hostId as string)
-
+    if (!host) {
+        throw new Error("Host profile not found for this user.");
+    }
+    const result = await EventService.createEvent(req.body, host.id);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -41,9 +42,31 @@ const createEvent = catchAsync(async (req: Request & { user?: any }, res: Respon
 
 
 // Update Event
-const updateEvent = catchAsync(async (req: Request, res: Response) => {
+const updateEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
   const eventId = req.params.id;
   const payload = req.body;
+
+  const userEmail = req.user?.email;
+  if (!userEmail) throw new Error("User not logged in.");
+
+  // Fetch the host using user email
+  const host = await prisma.host.findUnique({
+    where: { email: userEmail },
+  });
+  const hostId = host?.id;
+
+  if (!hostId) throw new Error("Host not found.");
+
+  // Check if user owns the event
+  const isOwner = await EventService.isEventOwner(eventId, hostId);
+  if (!isOwner) {
+    return sendResponse(res, {
+      statusCode: 403,
+      success: false,
+      message: "Forbidden: You do not have permission to update this event.",
+      data: null,
+    });
+  }
 
   const result = await EventService.updateEvent(eventId, payload);
 
@@ -57,8 +80,30 @@ const updateEvent = catchAsync(async (req: Request, res: Response) => {
 
 
 // Delete Event
-const deleteEvent = catchAsync(async (req: Request, res: Response) => {
+const deleteEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
   const eventId = req.params.id;
+
+  const userEmail = req.user?.email;
+  if (!userEmail) throw new Error("User not logged in.");
+
+  // Fetch the host using user email
+  const host = await prisma.host.findUnique({
+    where: { email: userEmail },
+  });
+  const hostId = host?.id;
+
+  if (!hostId) throw new Error("Host not found.");
+
+  // Check if user owns the event
+  const isOwner = await EventService.isEventOwner(eventId, hostId);
+  if (!isOwner) {
+    return sendResponse(res, {
+      statusCode: 403,
+      success: false,
+      message: "Forbidden: You do not have permission to delete this event.",
+      data: null,
+    });
+  }
 
   const result = await EventService.deleteEvent(eventId);
 
