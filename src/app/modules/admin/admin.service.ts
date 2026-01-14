@@ -42,6 +42,9 @@ const getAllFromDB = async (params: IAdminFilterRequest, options: IOptions) => {
 
     const result = await prisma.admin.findMany({
         where: whereConditons,
+        include: {
+            user: true
+        },
         skip,
         take: limit,
         orderBy: options.sortBy && options.sortOrder ? {

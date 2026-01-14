@@ -1,7 +1,6 @@
 // src/app/modules/Host/host.routes.ts
 import express from "express";
 import { HostController } from "./host.controller";
-import { EventController } from "../event/event.controller";
 import roleBasedAuth from "../../middlewares/roleBasedAuth";
 import { UserRole } from "@prisma/client";
 
@@ -45,17 +44,21 @@ router.delete("/:eventId",
     HostController.deleteEvent
 );
 
+router.patch('/update-host/:id',
+    roleBasedAuth(UserRole.HOST),
+    HostController.updateHost
+);
 
-// PARTICIPANT MANAGEMENT (HOST ONLY)
+router.delete('/:id',
+    roleBasedAuth(UserRole.HOST),
+    HostController.deleteHost
+);
 
+router.delete('/soft-delete/:id',
+    roleBasedAuth(UserRole.HOST),
+    HostController.softDeleteHost
+);
 
-// : Approve participant (Host only)
-    // Host wil check first that the participants paid or not
-        // if paid -> Approved
-
-// : reject participant (Host only)
-    // Host wil check first that the participants paid or not
-        // else -> rejected
 
 
 export const HostRoutes = router;

@@ -18,25 +18,26 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 const uploadToCloudinary = async (file: Express.Multer.File) => {
-    // Configuration
-    cloudinary.config({
-        cloud_name: config.cloudinary.cloud_name,
-        api_key: config.cloudinary.api_key,
-        api_secret: config.cloudinary.api_secret
-    });
-
-    // Upload an image
-    const uploadResult = await cloudinary.uploader
-        .upload(
-            file.path, {
-            public_id: file.filename,
-        }
-        )
-        .catch((error) => {
-            console.log(error);
+    try {
+        // Configuration
+        cloudinary.config({
+            cloud_name: config.cloudinary.cloud_name,
+            api_key: config.cloudinary.api_key,
+            api_secret: config.cloudinary.api_secret
         });
-    return uploadResult;
 
+        // Upload an image
+        const uploadResult = await cloudinary.uploader
+            .upload(
+                file.path, {
+                public_id: file.filename,
+            }
+            );
+        return uploadResult;
+    } catch (error) {
+        console.error("Cloudinary upload error:", error);
+        throw error;
+    }
 }
 
 
@@ -45,3 +46,9 @@ export const fileUploader = {
     upload,
     uploadToCloudinary
 }
+
+
+
+// Bug : Profile Photo Upload Hoccilona
+    // Upload to Cloudinary
+        // eta try-catch er moodde kora hoyce  

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Host, Prisma, UserStatus } from "@prisma/client";
 import prisma from "../../shared/prisma";
 import { IOptions, paginationHelper } from "../../helpers/paginationHelper";
 
@@ -125,6 +125,85 @@ const deleteEvent = async (hostId: string, eventId: string) => {
 };
 
 
+const updateHost = async (id: string, data: Partial<Host>): Promise<Host> => {
+    await prisma.host.findUniqueOrThrow({
+        where: {
+            id,
+            isDeleted: false
+        }
+    });
+
+    const result = await prisma.host.update({
+        where: {
+            id
+        },
+        data
+    });
+
+    return result;
+};
+
+const deleteHost = async (id: string): Promise<Host | null> => {
+    await prisma.host.findUniqueOrThrow({
+        where: {
+            id
+        }
+    });
+
+    const result = await prisma.$transaction(async (transactionClient) => {
+        const hostDeletedData = await transactionClient.host.delete({
+            where: {
+                id
+            }
+        });
+
+        await transactionClient.user.delete({
+            where: {
+                email: hostDeletedData.email
+            }
+        });
+
+        return hostDeletedData;
+    });
+
+    return result;
+};
+
+const softDeleteHost = async (id: string): Promise<Host | null> => {
+    await prisma.host.findUniqueOrThrow({
+        where: {
+            id,
+            isDeleted: false
+        }
+    });
+
+    const result = await prisma.$transaction(async (transactionClient) => {
+        const hostDeletedData = await transactionClient.host.update({
+            where: {
+                id
+            },
+            data: {
+                isDeleted: true
+            }
+        });
+
+        await transactionClient.user.update({
+            where: {
+                email: hostDeletedData.email
+            },
+            data: {
+                status: UserStatus.DELETED  // Changed from ACTIVE to DELETED for consistency
+            }
+        });
+
+        return hostDeletedData;
+    });
+
+    return result;
+};
+
+
+
 
 
 export const HostService = {
@@ -133,5 +212,8 @@ export const HostService = {
   getAllParticipantsOfThisEvents,
   getEventPayments,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  updateHost,
+  deleteHost,
+  softDeleteHost
 };

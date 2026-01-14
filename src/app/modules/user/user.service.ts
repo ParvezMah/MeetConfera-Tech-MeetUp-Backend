@@ -1,18 +1,69 @@
+import { Admin, Host, Prisma, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Request } from "express";
 import config from "../../../config";
 import { fileUploader } from "../../helpers/fileUploader";
-import prisma from "../../shared/prisma";
-import { Admin, Host, Prisma, UserRole, UserStatus } from "@prisma/client";
 import { paginationHelper } from "../../helpers/paginationHelper";
-import { userSearchableFields } from "./user.constant";
+import prisma from "../../shared/prisma";
 import { IAuthUser } from "../../types/common";
+import { userSearchableFields } from "./user.constant";
+
+
+// const createUser = async (req: Request) => {
+//   let profilePhotoUrl: string | null = null;
+
+//   // ---------- Upload profile photo if provided ----------
+//   const file = req.file;
+//   if (file) {
+//     const uploaded = await uploadBufferToCloudinary(file.buffer, file.originalname);
+//     profilePhotoUrl = uploaded?.secure_url || null;
+//   }
+
+//   // ---------- Hash password ----------
+//   const hashedPassword = await bcrypt.hash(req.body.password, Number(config.salt_round));
+
+//   // ---------- Create user in database ----------
+//   const result = await prisma.user.create({
+//     data: {
+//       name: req.body.name,
+//       email: req.body.email,
+//       password: hashedPassword,
+//       contactNumber: req.body.contactNumber,
+//       location: req.body.location,
+//       profilePhoto: profilePhotoUrl, // null if not uploaded
+//       role: "USER", // default role
+//       status: "ACTIVE",
+//       needPasswordChange: true,
+//     },
+//   });
+
+//   return result;
+// };
+
+
+
+
+
 
 
 const createUser = async (req: Request) => {
+  // Check if email already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email: req.body.user.email }
+  });
+
+  if (existingUser) {
+    throw new Error(`Email "${req.body.user.email}" is already registered`);
+  }
+
   if (req.file) {
-    const uploadResult = await fileUploader.uploadToCloudinary(req.file);
-    req.body.user.profilePhoto = uploadResult?.secure_url;
+    try {
+      const uploadResult = await fileUploader.uploadToCloudinary(req.file);
+      req.body.user.profilePhoto = uploadResult?.secure_url;
+    } catch (error) {
+      console.error("Profile photo upload failed:", error);
+      // Continue without profile photo, or throw error if required
+    }
   }
   const hashPassword = await bcrypt.hash(
     req.body.password,
@@ -34,9 +85,23 @@ const createUser = async (req: Request) => {
 };
 
 const createHost = async (req: Request): Promise<Host> => {
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({
+        where: { email: req.body.host.email }
+    });
+
+    if (existingUser) {
+        throw new Error(`Email "${req.body.host.email}" is already registered`);
+    }
+
     if (req.file) {
-        const uploaded = await fileUploader.uploadToCloudinary(req.file);
-        req.body.host.profilePhoto = uploaded?.secure_url;
+        try {
+            const uploaded = await fileUploader.uploadToCloudinary(req.file);
+            req.body.host.profilePhoto = uploaded?.secure_url;
+        } catch (error) {
+            console.error("Profile photo upload failed:", error);
+            // Continue without profile photo
+        }
     }
 
     const hashedPassword = await bcrypt.hash(req.body.password, Number(config.salt_round));
@@ -63,9 +128,23 @@ const createHost = async (req: Request): Promise<Host> => {
 };
 
 const createAdmin = async (req: Request): Promise<Admin> => {
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({
+        where: { email: req.body.admin.email }
+    });
+
+    if (existingUser) {
+        throw new Error(`Email "${req.body.admin.email}" is already registered`);
+    }
+
     if (req.file) {
-        const uploaded = await fileUploader.uploadToCloudinary(req.file);
-        req.body.admin.profilePhoto = uploaded?.secure_url;
+        try {
+            const uploaded = await fileUploader.uploadToCloudinary(req.file);
+            req.body.admin.profilePhoto = uploaded?.secure_url;
+        } catch (error) {
+            console.error("Profile photo upload failed:", error);
+            // Continue without profile photo
+        }
     }
 
     const hashedPassword = await bcrypt.hash(req.body.password, Number(config.salt_round));

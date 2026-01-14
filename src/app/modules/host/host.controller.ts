@@ -122,11 +122,52 @@ const deleteEvent = catchAsync(async (req: Request & { user?: any }, res: Respon
 });
 
 
+const updateHost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await HostService.updateHost(id, req.body);
+    
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Host data updated successfully!",
+        data: result
+    });
+});
+
+const deleteHost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await HostService.deleteHost(id);
+    
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Host data deleted successfully!",
+        data: result
+    });
+});
+
+const softDeleteHost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await HostService.softDeleteHost(id);
+    
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Host data soft deleted successfully!",
+        data: result
+    });
+});
+
+
+
 export const HostController = {
   getHosts,
   getMyEvents,
   getAllParticipantsOfThisEvents,
   getEventPayments,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  updateHost,
+  deleteHost,
+  softDeleteHost
 };
