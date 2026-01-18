@@ -1,8 +1,10 @@
 // src/app/modules/Host/host.routes.ts
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { HostController } from "./host.controller";
 import roleBasedAuth from "../../middlewares/roleBasedAuth";
 import { UserRole } from "@prisma/client";
+import { EventsValidation } from "../event/event.validation";
+import { fileUploader } from "../../helpers/fileUploader";
 
 const router = express.Router();
 // Host can view their own events (Static route must be defined before dynamic routes)
@@ -38,10 +40,26 @@ router.get("/:eventId/payments",
 );
 
 
+router.post("/create-event",
+  roleBasedAuth(UserRole.HOST),
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = EventsValidation.createEventZodSchema.parse(
+      JSON.parse(req.body.data)
+    );
+    return HostController.createEvent(req, res, next);
+  }
+);
+
 // Update an event (only by the host who owns it)
-router.patch("/:eventId",
+router.patch("/update-event/:id",
     roleBasedAuth(UserRole.HOST),
     HostController.updateEvent
+);
+
+router.delete('/:id',
+    roleBasedAuth(UserRole.HOST),
+    HostController.deleteHost
 );
 
 // Delete an event (only by the host who owns it)
@@ -53,11 +71,6 @@ router.delete("/:eventId",
 router.patch('/update-host/:id',
     roleBasedAuth(UserRole.HOST),
     HostController.updateHost
-);
-
-router.delete('/:id',
-    roleBasedAuth(UserRole.HOST),
-    HostController.deleteHost
 );
 
 router.delete('/soft-delete/:id',

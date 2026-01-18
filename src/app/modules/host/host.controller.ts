@@ -72,7 +72,12 @@ const getAllParticipantsOfThisEvents = catchAsync(async (req: Request & { user?:
       where: {email : userEmail}
     })
 
-    const result = await HostService.getAllParticipantsOfThisEvents(eventId, host?.id as string);
+    const hostId = host?.id;
+    if (!hostId) { 
+      throw new Error("No logged in host found in getMyEvents");
+    }
+
+    const result = await HostService.getAllParticipantsOfThisEvents(eventId, hostId as string);
 
     sendResponse(res, {
         statusCode: 200,
@@ -102,26 +107,75 @@ const getEventPayments = catchAsync(async (req: Request & { user?: any }, res: R
 });
 
 // Update an event (only by the host who owns it)
-const updateEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-    const eventId = req.params.eventId;
-    const payload = req.body;
+// const updateEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+//     const eventId = req.params.eventId;
+//     const payload = req.body;
     
-    // Getting Logged in Host
-    const userEmail = req.user.email; 
-    const host = await prisma.host.findUnique({
-      where: {email : userEmail}
-    })
+//     // Getting Logged in Host
+//     const userEmail = req.user.email; 
+//     const host = await prisma.host.findUnique({
+//       where: {email : userEmail}
+//     })
 
-    const updatedEvent = await HostService.updateEvent(host?.id as string, eventId, payload);
+//     const updatedEvent = await HostService.updateEvent(host?.id as string, eventId, payload);
 
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: "Event updated successfully!",
-        data: updatedEvent
-    });
+//     sendResponse(res, {
+//         statusCode: 200,
+//         success: true,
+//         message: "Event updated successfully!",
+//         data: updatedEvent
+//     });
+// });
+
+
+const createEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+  const result = await HostService.createEvent(req);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Event created successfully!",
+    data: result,
+  });
 });
 
+const updateEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+    const eventId = req.params.id;
+    const userEmail = req.user?.email;
+    if (!userEmail) {
+        return sendResponse(res, {
+            statusCode: 401,
+            success: false,
+            message: "Unauthorized: User not logged in.",
+            data: null,
+        });
+    }
+    
+    const payload = req.body;
+
+    // Fetch the host using user email
+    const host = await prisma.host.findUnique({
+      where: { email: userEmail },
+    });
+    if (!host) {
+      return sendResponse(res, {
+        statusCode: 403,
+        success: false,
+        message: "Forbidden: No host profile found for this user.",
+        data: null,
+      });
+    }
+
+    const result = await HostService.updateEvent(eventId, payload);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Event updated successfully!",
+      data: result,
+    });
+  }
+);
 
 // Delete an event (only by the host who owns it)
 const deleteEvent = catchAsync(async (req: Request & { user?: any }, res: Response) => {
@@ -226,24 +280,24 @@ const deleteHost = catchAsync(async (req: Request & { user?: any }, res: Respons
         });
     }
 
-    const isOwner = userEmail === host.email;
-    const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
+    // const isOwner = userEmail === host.email;
+    // const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
 
-    if (!isOwner && !isAdmin) {
-        return sendResponse(res, {
-            statusCode: 403,
-            success: false,
-            message: "Forbidden: You do not have permission to delete this host.",
-            data: null,
-        });
-    }
+    // if (!isOwner && !isAdmin) {
+    //     return sendResponse(res, {
+    //         statusCode: 403,
+    //         success: false,
+    //         message: `Forbidden: You are ${userRole}. You do not have permission to delete this host.`,
+    //         data: null,
+    //     });
+    // }
 
     const result = await HostService.deleteHost(id);
     
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Host data deleted successfully!",
+        message: "Host deleted successfully!",
         data: result
     });
 });
@@ -279,24 +333,24 @@ const softDeleteHost = catchAsync(async (req: Request & { user?: any }, res: Res
         });
     }
 
-    const isOwner = userEmail === host.email;
-    const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
+    // const isOwner = userEmail === host.email;
+    // const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
 
-    if (!isOwner && !isAdmin) {
-        return sendResponse(res, {
-            statusCode: 403,
-            success: false,
-            message: "Forbidden: You do not have permission to soft delete this host.",
-            data: null,
-        });
-    }
+    // if (!isOwner && !isAdmin) {
+    //     return sendResponse(res, {
+    //         statusCode: 403,
+    //         success: false,
+    //         message: `Forbidden: You are ${userRole}. You do not have permission to soft delete this host.`,
+    //         data: null,
+    //     });
+    // }
 
     const result = await HostService.softDeleteHost(id);
     
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Host data soft deleted successfully!",
+        message: "Host soft deleted successfully!",
         data: result
     });
 });
@@ -309,6 +363,7 @@ export const HostController = {
   getMyEvents,
   getAllParticipantsOfThisEvents,
   getEventPayments,
+  createEvent,
   updateEvent,
   deleteEvent,
   updateHost,
