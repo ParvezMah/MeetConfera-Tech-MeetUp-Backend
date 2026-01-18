@@ -8,8 +8,7 @@ import { EventsValidation } from "./event.validation";
 
 const router = Router();
 
-router.post(
-  "/create-event",
+router.post("/create-event",
   roleBasedAuth(UserRole.HOST),
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
@@ -20,14 +19,12 @@ router.post(
   }
 );
 
-router.patch(
-  "/update-event/:id",
+router.patch("/update-event/:id",
   roleBasedAuth(UserRole.HOST),
   EventController.updateEvent
 );
 
-router.delete(
-  "/delete-event/:id",
+router.delete("/delete-event/:id",
   roleBasedAuth(UserRole.HOST),
   EventController.deleteEvent
 );

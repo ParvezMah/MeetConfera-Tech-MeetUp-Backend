@@ -17,67 +17,124 @@ const getAllHosts = async () => {
 
 // Get a single Host by ID
 const getSingleHost = async (hostId: string) => {
+    console.log("This is getSingleHost:");
     const result = await prisma.host.findUnique({
         where: { id: hostId },
         include: { user: true, events: true },
     });
 
-    if (!result) throw new Error("Host not found!");
+    if (!result) throw new Error("Host not found in getSingleHost!");
     return result;
 };
 
 // Host cav View their own event
+// const getMyEvents = async (hostId: string, filters: any, options: IOptions) => {
+//     console.log("Host ID in service:", hostId);
+//     console.log("Filters:", filters);
+//     console.log("Options:", options);
+//     const { page, limit, skip } = paginationHelper.calculatePagination(options);
+
+//     const andConditions: Prisma.EventWhereInput[] = [
+//         { hostId }
+//     ];
+
+//     if (filters.startDate && filters.endDate) {
+//         andConditions.push({
+//             date: {
+//                 gte: new Date(filters.startDate),
+//                 lte: new Date(filters.endDate)
+//             }
+//         });
+//     }
+
+//     if (filters.category) {
+//         andConditions.push({
+//             category: { equals: filters.category }
+//         });
+//     }
+
+//     if (filters.status) {
+//         andConditions.push({
+//             status: { equals: filters.status }
+//         });
+//     }
+
+//     const whereConditions: Prisma.EventWhereInput = {
+//         AND: andConditions
+//     };
+
+//     const data = await prisma.event.findMany({
+//         where: whereConditions,
+//         skip,
+//         take: limit,
+//         orderBy:
+//             options.sortBy && options.sortOrder
+//                 ? { [options.sortBy]: options.sortOrder }
+//                 : { date: "desc" },
+//         // Relation to Participant Table 
+//         include: { participants: true }
+//     });
+
+//     const total = await prisma.event.count({ where: whereConditions });
+
+//     return {
+//         meta: { total, page, limit },
+//         data
+//     };
+// };
+
+
+
 const getMyEvents = async (hostId: string, filters: any, options: IOptions) => {
-    const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
 
-    const andConditions: Prisma.EventWhereInput[] = [
-        { hostId }
-    ];
+  const andConditions: Prisma.EventWhereInput[] = [{ hostId }];
 
-    if (filters.startDate && filters.endDate) {
-        andConditions.push({
-            date: {
-                gte: new Date(filters.startDate),
-                lte: new Date(filters.endDate)
-            }
-        });
-    }
-
-    if (filters.category) {
-        andConditions.push({
-            category: { equals: filters.category }
-        });
-    }
-
-    if (filters.status) {
-        andConditions.push({
-            status: { equals: filters.status }
-        });
-    }
-
-    const whereConditions: Prisma.EventWhereInput = {
-        AND: andConditions
-    };
-
-    const data = await prisma.event.findMany({
-        where: whereConditions,
-        skip,
-        take: limit,
-        orderBy:
-            options.sortBy && options.sortOrder
-                ? { [options.sortBy]: options.sortOrder }
-                : { date: "desc" },
-        // Relation to Participant Table 
-        include: { participants: true }
+  // Date filter
+  if (filters.startDate && filters.endDate) {
+    andConditions.push({
+      date: {
+        gte: new Date(filters.startDate),
+        lte: new Date(filters.endDate),
+      },
     });
+  }
 
-    const total = await prisma.event.count({ where: whereConditions });
+  // Category filter
+  if (filters.category) {
+    andConditions.push({ category: filters.category });
+  }
 
-    return {
-        meta: { total, page, limit },
-        data
-    };
+  // Status filter
+  if (filters.status) {
+    andConditions.push({ status: filters.status });
+  }
+
+  const whereConditions: Prisma.EventWhereInput = { AND: andConditions };
+
+  // Fetch events with participants
+  const data = await prisma.event.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : { date: "desc" },
+    include: { participants: true },
+  });
+
+  const total = await prisma.event.count({ where: whereConditions });
+
+  return {
+    meta: { total, page, limit },
+    data,
+  };
 };
+
+
+
+
 
 // Host cav View participants of a specific event
 const getAllParticipantsOfThisEvents = async (eventId: string, hostId: string) => {

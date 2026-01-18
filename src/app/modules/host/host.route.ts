@@ -5,6 +5,11 @@ import roleBasedAuth from "../../middlewares/roleBasedAuth";
 import { UserRole } from "@prisma/client";
 
 const router = express.Router();
+// Host can view their own events (Static route must be defined before dynamic routes)
+router.get("/my-events",
+  roleBasedAuth(UserRole.HOST),
+  HostController.getMyEvents
+);
 
 // Admin & Super_Admin call view all Host
 router.get("/",
@@ -12,16 +17,12 @@ router.get("/",
     HostController.getAllHosts
 );
 
+// Get a single Host by ID
 router.get("/:hostId",
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.getSingleHost
 );
 
-// Host can view their own events
-router.get("/my-events",
-    roleBasedAuth(UserRole.HOST),
-    HostController.getMyEvents
-)
 
 // Host cav View participants of a specific event
 router.get("/:eventId/participants", 

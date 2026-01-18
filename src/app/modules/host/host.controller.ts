@@ -32,27 +32,36 @@ const getSingleHost = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// Host can view their own events
-const getMyEvents = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+
+export const getMyEvents = catchAsync(
+  async (req: Request & { user?: any }, res: Response) => {
+    // Extract filters & options from query
     const filters = pick(req.query, ["category", "status", "startDate", "endDate"]);
     const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
-    // Getting Logged in Host
-    const userEmail = req.user.email; 
+    // Logged-in host ID from JWT (cookie)
+    const userEmail = req.user?.email;
     const host = await prisma.host.findUnique({
-      where: {email : userEmail}
-    })
-
-    const result = await HostService.getMyEvents(host?.id as string, filters, options);
+      where: { email: userEmail },
+    });
+    const hostId = host?.id;
+    if (!hostId) {
+      throw new Error("No logged in host found in getMyEvents");
+    }
+    const result = await HostService.getMyEvents(hostId as string, filters, options);
 
     sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "My events fetched successfully!",
-        meta: result.meta,
-        data: result.data
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "My events fetched successfully!",
+      meta: result.meta,
+      data: result.data,
     });
-});
+  }
+);
+
+
+
 // Host can view their own participants who joined thier event
 const getAllParticipantsOfThisEvents = catchAsync(async (req: Request & { user?: any }, res: Response) => {
     const { eventId } = req.params;
@@ -159,7 +168,7 @@ const updateHost = catchAsync(async (req: Request & { user?: any }, res: Respons
         return sendResponse(res, {
             statusCode: 404,
             success: false,
-            message: "Host not found.",
+            message: "Host not found in updateHost.",
             data: null,
         });
     }
@@ -212,7 +221,7 @@ const deleteHost = catchAsync(async (req: Request & { user?: any }, res: Respons
         return sendResponse(res, {
             statusCode: 404,
             success: false,
-            message: "Host not found.",
+            message: "Host not found in deleteHost.",
             data: null,
         });
     }
@@ -265,7 +274,7 @@ const softDeleteHost = catchAsync(async (req: Request & { user?: any }, res: Res
         return sendResponse(res, {
             statusCode: 404,
             success: false,
-            message: "Host not found.",
+            message: "Host not found in softDeleteHost.",
             data: null,
         });
     }

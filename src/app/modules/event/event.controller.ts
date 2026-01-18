@@ -105,7 +105,7 @@ const deleteEvent = catchAsync(
       return sendResponse(res, {
         statusCode: 401,
         success: false,
-        message: "Unauthorized: Host not found.",
+        message: "Unauthorized: Host not found in deleteEvent.",
         data: null,
       });
     }
