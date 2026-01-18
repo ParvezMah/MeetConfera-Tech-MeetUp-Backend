@@ -1,15 +1,17 @@
-export interface ICreateEvent {
+import { EventCategory, EventStatus } from "@prisma/client";
+
+export interface IEvent {
   eventName: string;
-  description?: string;
-  date: string;
-  location?: string;
+  description: string;
+  date: Date;
   maxParticipants: number;
   minParticipants: number;
-  joinedParticipants: number;
-  status?: string;
+  joinedParticipants?: number;
   image?: string;
   joiningFee?: number;
-  category: string;
+  location?: string;
+  status?: EventStatus;
+  category: EventCategory;
   host?: string;
-  // hostId: string;
+  // hostId: string;  // Because hostId will be taken from logged in user
 }

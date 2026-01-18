@@ -9,7 +9,12 @@ const router = express.Router();
 // Admin & Super_Admin call view all Host
 router.get("/",
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
-    HostController.getHosts
+    HostController.getAllHosts
+);
+
+router.get("/:hostId",
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
+    HostController.getSingleHost
 );
 
 // Host can view their own events

@@ -9,43 +9,6 @@ import { IAuthUser } from "../../types/common";
 import { userSearchableFields } from "./user.constant";
 
 
-// const createUser = async (req: Request) => {
-//   let profilePhotoUrl: string | null = null;
-
-//   // ---------- Upload profile photo if provided ----------
-//   const file = req.file;
-//   if (file) {
-//     const uploaded = await uploadBufferToCloudinary(file.buffer, file.originalname);
-//     profilePhotoUrl = uploaded?.secure_url || null;
-//   }
-
-//   // ---------- Hash password ----------
-//   const hashedPassword = await bcrypt.hash(req.body.password, Number(config.salt_round));
-
-//   // ---------- Create user in database ----------
-//   const result = await prisma.user.create({
-//     data: {
-//       name: req.body.name,
-//       email: req.body.email,
-//       password: hashedPassword,
-//       contactNumber: req.body.contactNumber,
-//       location: req.body.location,
-//       profilePhoto: profilePhotoUrl, // null if not uploaded
-//       role: "USER", // default role
-//       status: "ACTIVE",
-//       needPasswordChange: true,
-//     },
-//   });
-
-//   return result;
-// };
-
-
-
-
-
-
-
 const createUser = async (req: Request) => {
   // Check if email already exists
   const existingUser = await prisma.user.findUnique({

@@ -21,29 +21,6 @@ router.get(
     UserController.getMyProfile
 )
 
-// Create User Route
-// router.post(
-//   "/create-user",
-//   multerUpload.single("file"), // "file" is the field name for profile photo
-//   (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       // Parse JSON from FormData (if sent as "data" field)
-//       const parsedBody = req.body.data ? JSON.parse(req.body.data) : req.body;
-
-//       // Validate request
-//       req.body = UserValidation.createUserValidationSchema.parse(parsedBody);
-
-//       // Pass to controller
-//       return UserController.createUser(req, res, next);
-//     } catch (error) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid input",
-//         error,
-//       });
-//     }
-//   }
-// );
 router.post("/create-user",
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {

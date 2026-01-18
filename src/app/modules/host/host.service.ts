@@ -10,7 +10,20 @@ const getAllHosts = async () => {
     include: { user: true, events: true },
   });
 
+  if (!result) throw new Error("No hosts found!");
+
   return result
+};
+
+// Get a single Host by ID
+const getSingleHost = async (hostId: string) => {
+    const result = await prisma.host.findUnique({
+        where: { id: hostId },
+        include: { user: true, events: true },
+    });
+
+    if (!result) throw new Error("Host not found!");
+    return result;
 };
 
 // Host cav View their own event
@@ -208,6 +221,7 @@ const softDeleteHost = async (id: string): Promise<Host | null> => {
 
 export const HostService = {
   getAllHosts,
+  getSingleHost,
   getMyEvents,
   getAllParticipantsOfThisEvents,
   getEventPayments,

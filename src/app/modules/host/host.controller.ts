@@ -9,7 +9,7 @@ import httpStatus from "http-status"
 
 
 // Admin call view all Host
-const getHosts = catchAsync(async (req: Request, res: Response) => {
+const getAllHosts = catchAsync(async (req: Request, res: Response) => {
   const result = await HostService.getAllHosts();
 
   sendResponse(res, {
@@ -18,6 +18,18 @@ const getHosts = catchAsync(async (req: Request, res: Response) => {
     message: "Hosts fetched successfully!",
     data: result,
   });
+});
+
+// Get a single Host by ID
+const getSingleHost = catchAsync(async (req: Request, res: Response) => {
+    const { hostId } = req.params;
+    const result = await HostService.getSingleHost(hostId);
+    sendResponse(res, {
+        statusCode:httpStatus.OK,
+        success: true,
+        message: "Host fetched successfully!",
+        data: result,
+    });
 });
 
 // Host can view their own events
@@ -131,13 +143,12 @@ const updateHost = catchAsync(async (req: Request & { user?: any }, res: Respons
 
     if (!userEmail) {
         return sendResponse(res, {
-            statusCode: 403,
+            statusCode: httpStatus.UNAUTHORIZED,
             success: false,
-            message: "Forbidden: User not authenticated.",
+            message: "Unauthorized: User not authenticated.",
             data: null,
         });
     }
-
     // Check if user is the host being updated or has admin role
     const host = await prisma.host.findUnique({
         where: { id },
@@ -284,7 +295,8 @@ const softDeleteHost = catchAsync(async (req: Request & { user?: any }, res: Res
 
 
 export const HostController = {
-  getHosts,
+  getAllHosts,
+  getSingleHost,
   getMyEvents,
   getAllParticipantsOfThisEvents,
   getEventPayments,

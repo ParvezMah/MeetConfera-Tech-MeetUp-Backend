@@ -14,7 +14,7 @@ const createHostValidationSchema = z.object({
     password: z.string({ error: "Password is required" }),
     host: z.object({
         name: z.string({ error: "Name is required!" }),
-        email: z.string({ error: "Email is required!" }).email(),
+        email: z.string({ error: "Email is required!" }),
         contactNumber: z.string({ error: "Contact Number is required!" }),
         organization: z.string().optional(),
         profilePhoto: z.string().optional(),

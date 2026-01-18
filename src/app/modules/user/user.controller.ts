@@ -7,16 +7,7 @@ import { userFilterableFields } from "./user.constant";
 import httpStatus from "http-status"
 import { IAuthUser } from "../../types/common";
 
-// const createUser = catchAsync(async (req: Request, res: Response) => {
-//     const result = await UserService.createUser(req);
 
-//     sendResponse(res, {
-//         statusCode: 201,
-//         success: true,
-//         message: "User created successfully!",
-//         data: result
-//     })
-// });
 const createUser = catchAsync(async (req: Request, res: Response) => {
     const result = await UserService.createUser(req);
 
