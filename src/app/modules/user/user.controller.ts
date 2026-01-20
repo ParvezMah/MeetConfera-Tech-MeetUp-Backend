@@ -82,6 +82,34 @@ const updateMyProfie = catchAsync(async (req: Request & { user?: IAuthUser }, re
     })
 });
 
+// Hard delete
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await UserService.deleteUser(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User deleted permanently",
+    data: result,
+  });
+});
+
+// Soft delete
+const softDeleteUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result =await UserService.softDeleteUser(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User soft deleted successfully",
+    data: result,
+  });
+});
+
 
 export const UserController = {
     createUser,
@@ -89,5 +117,7 @@ export const UserController = {
     createAdmin,
     getAllFromDB,
     getMyProfile,
-    updateMyProfie
+    updateMyProfie,
+    deleteUser,
+    softDeleteUser
 };

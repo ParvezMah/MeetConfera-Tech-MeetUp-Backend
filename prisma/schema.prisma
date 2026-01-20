@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+
+// ======================================enum.prisma======================================
+
+enum UserRole {
+  SUPER_ADMIN
+  USER
+  HOST
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EventStatus {
+  OPEN
+  FULLED
+  CANCELED
+  COMPLETED
+}
+
+enum participantStatus {
+  JOINED
+  CANCELLED
+  REJECTED
+  WAITING
+}
+
+enum EventCategory {
+  AI
+  MACHINE_LEARNING
+  DATA_SCIENCE
+  WEB_DEVELOPMENT
+  MOBILE_DEVELOPMENT
+  CLOUD_COMPUTING
+  CYBER_SECURITY
+  BLOCKCHAIN
+  DEVOPS
+  GAMING
+  ROBOTICS
+  STARTUPS
+  IOT
+  SOFTWARE_ENGINEERING
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentGatewayProvider {
+  STRIPE
+  SSLCOMMERZ
+}
+
+
+
+
+
+// ======================================user.prisma======================================
+model User {
+  id                 String         @id @default(uuid())
+  name               String
+  email              String         @unique
+  password           String
+  role               UserRole       @default(USER)
+  profilePhoto       String?
+  contactNumber      String
+  needPasswordChange Boolean        @default(true)
+  status             UserStatus     @default(ACTIVE)
+  bio                String?
+  location           String?
+  interests          EventCategory?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  
+  admin              Admin?
+  host               Host?
+  participants       Participant[]
+  payments           Payment[]
+
+  @@map("users")
+}
+
+model Admin {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  profilePhoto  String?
+  contactNumber String
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [email], references: [email])
+
+  @@map("admins")
+}
+
+model Host {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  profilePhoto  String?
+  contactNumber String
+  organization  String?
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  averageRating Float    @default(0)
+  events        Event[]
+  user          User     @relation(fields: [email], references: [email])
+  reviews       Review[]
+
+  @@map("hosts")
+}
+
+model Participant {
+  id        String            @id @default(uuid())
+  userId    String
+  eventId   String
+  status    participantStatus @default(JOINED)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
+
+  event   Event    @relation(fields: [eventId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  payment Payment?
+  reviews Review[]
+
+  @@map("participants")
+}
+
+
+
+// ======================================event.prisma======================================
+model Event {
+  id                 String        @id @default(uuid())
+  eventName          String
+  description        String?
+  date               DateTime
+  maxParticipants    Int
+  minParticipants    Int
+  joinedParticipants Int
+  image              String?
+  joiningFee         Int?
+  location           String?
+  status             EventStatus   @default(OPEN)
+  category           EventCategory
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  hostId             String
+  host               Host          @relation(fields: [hostId], references: [id])
+  participants       Participant[]
+  payments           Payment[]
+  reviews            Review[]
+
+  @@map("events")
+}
+
+
+
+
+// ======================================payment.prisma======================================
+model Payment {
+  id            String                 @id @default(uuid())
+  userId        String
+  eventId       String
+  amount        Int
+  gatewayData   Json?
+  gatewayName   PaymentGatewayProvider
+  participantId String                 @unique
+  transactionId String?
+  status        PaymentStatus          @default(PENDING)
+  event         Event                  @relation(fields: [eventId], references: [id])
+  participant   Participant            @relation(fields: [participantId], references: [id])
+  user          User                   @relation(fields: [userId], references: [id])
+
+  @@map("payments")
+}
+
+
+
+// ======================================review.prisma======================================
+model Review {
+  id            String      @id @default(uuid())
+  rating        Int
+  comment       String?
+  participantId String
+  hostId        String
+  eventId       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  event         Event       @relation(fields: [eventId], references: [id])
+  host          Host        @relation(fields: [hostId], references: [id])
+  participant   Participant @relation(fields: [participantId], references: [id])
+
+  @@unique([participantId, hostId, eventId])
+  @@map("reviews")
+}
+

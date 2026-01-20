@@ -333,18 +333,6 @@ const softDeleteHost = catchAsync(async (req: Request & { user?: any }, res: Res
         });
     }
 
-    // const isOwner = userEmail === host.email;
-    // const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
-
-    // if (!isOwner && !isAdmin) {
-    //     return sendResponse(res, {
-    //         statusCode: 403,
-    //         success: false,
-    //         message: `Forbidden: You are ${userRole}. You do not have permission to soft delete this host.`,
-    //         data: null,
-    //     });
-    // }
-
     const result = await HostService.softDeleteHost(id);
     
     sendResponse(res, {
