@@ -4,11 +4,11 @@ import { Request } from "express";
 import config from "../../../config";
 import { fileUploader } from "../../helpers/fileUploader";
 import { paginationHelper } from "../../helpers/paginationHelper";
-import prisma from "../../shared/prisma";
 import { IAuthUser } from "../../types/common";
 import { userSearchableFields } from "./user.constant";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
+import { prisma } from "../../shared/prisma";
 
 
 const createUser = async (req: Request) => {
