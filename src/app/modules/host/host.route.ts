@@ -57,10 +57,7 @@ router.patch("/update-event/:id",
     HostController.updateEvent
 );
 
-router.delete('/:id',
-    roleBasedAuth(UserRole.HOST),
-    HostController.deleteHost
-);
+
 
 // Delete an event (only by the host who owns it)
 router.delete("/:eventId",
@@ -71,6 +68,11 @@ router.delete("/:eventId",
 router.patch('/update-host/:id',
     roleBasedAuth(UserRole.HOST),
     HostController.updateHost
+);
+
+router.delete('/:id',
+    roleBasedAuth(UserRole.HOST),
+    HostController.deleteHost
 );
 
 router.delete('/soft-delete/:id',

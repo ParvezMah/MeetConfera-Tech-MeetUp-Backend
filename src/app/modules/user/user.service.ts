@@ -7,6 +7,8 @@ import { paginationHelper } from "../../helpers/paginationHelper";
 import prisma from "../../shared/prisma";
 import { IAuthUser } from "../../types/common";
 import { userSearchableFields } from "./user.constant";
+import ApiError from "../../errors/ApiError";
+import httpStatus from "http-status";
 
 
 const createUser = async (req: Request) => {
@@ -76,7 +78,8 @@ const createHost = async (req: Request): Promise<Host> => {
                 email: req.body.host.email,
                 password: hashedPassword,
                 role: UserRole.HOST,
-                contactNumber: req.body.host.contactNumber
+                contactNumber: req.body.host.contactNumber,
+                location: req.body.location
             },
         });
 
@@ -338,11 +341,42 @@ const updateMyProfie = async (user: IAuthUser, req: Request) => {
     return { ...profileInfo };
 }
 
+// Hard delete
+const deleteUser = async (id: string) => {
+  const user = await prisma.user.findUnique({ where: { id } });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return prisma.user.delete({
+    where: { id },
+  });
+};
+
+// Soft delete
+const softDeleteUser = async (id: string) => {
+  const user = await prisma.user.findUnique({ where: { id } });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return prisma.user.update({
+    where: { id },
+    data: {
+      status: "DELETED",
+    },
+  });
+};
+
 export const UserService = {
   createUser,
   createHost,
   createAdmin,
   getAllFromDB,
   getMyProfile,
-  updateMyProfie
+  updateMyProfie,
+  deleteUser,
+  softDeleteUser
 };

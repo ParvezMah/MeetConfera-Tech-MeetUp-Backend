@@ -1,22 +1,19 @@
-import express, { NextFunction, Request, Response } from "express";
-import { UserController } from "./user.controller";
-import { fileUploader } from "../../helpers/fileUploader";
-import { UserValidation } from "./user.validation";
-import roleBasedAuth from "../../middlewares/roleBasedAuth";
 import { UserRole } from "@prisma/client";
-import { multerUpload } from "../../../config/multer.config";
+import express, { NextFunction, Request, Response } from "express";
+import { fileUploader } from "../../helpers/fileUploader";
+import roleBasedAuth from "../../middlewares/roleBasedAuth";
+import { UserController } from "./user.controller";
+import { UserValidation } from "./user.validation";
 
 const router = express.Router();
 // Get all User
-router.get(
-    "/",
+router.get("/",
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN), // Only access for ADMIN & SUPER_ADMIN
     UserController.getAllFromDB
 )
 
 // Get My Profile
-router.get(
-    '/me',
+router.get('/me',
     roleBasedAuth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.HOST, UserRole.USER),
     UserController.getMyProfile
 )
@@ -48,8 +45,7 @@ router.post("/create-admin",
     }
 );
 
-router.patch(
-    "/update-my-profile",
+router.patch("/update-my-profile",
     roleBasedAuth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.HOST, UserRole.USER),
     fileUploader.upload.single('file'),
     (req: Request, res: Response, next: NextFunction) => {
@@ -57,5 +53,20 @@ router.patch(
         return UserController.updateMyProfie(req, res, next)
     }
 );
+
+// Hard Delete User (Permanent)
+router.delete(
+  "/:id",
+  roleBasedAuth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.HOST, UserRole.USER),
+  UserController.deleteUser
+);
+
+// Soft Delete User
+router.delete(
+  "/soft/:id",
+  roleBasedAuth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.HOST, UserRole.USER),
+  UserController.softDeleteUser
+);
+
 
 export const UserRoutes = router;
