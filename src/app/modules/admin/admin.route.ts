@@ -15,6 +15,16 @@ router.get('/',
     AdminController.getAllFromDB
 );
 
+router.get('/stats', 
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+    AdminController.getAdminStats
+)
+
+router.get('/activities',
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+    AdminController.getAdminActivities
+)
+
 router.get('/:id',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.getByIdFromDB

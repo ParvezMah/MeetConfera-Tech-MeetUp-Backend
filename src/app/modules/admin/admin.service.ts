@@ -1,5 +1,5 @@
 
-import { IAdminFilterRequest } from "./admin.interface";
+import { AdminActivities, AdminStats, IAdminFilterRequest } from "./admin.interface";
 import { IOptions, paginationHelper } from "../../helpers/paginationHelper";
 import { adminSearchAbleFields } from "./admin.constant";
 import { Admin, Prisma, UserStatus } from "@prisma/client";
@@ -159,10 +159,59 @@ const softDeleteFromDB = async (id: string): Promise<Admin | null> => {
 }
 
 
+const getAdminStats = async (): Promise<AdminStats> => {
+    return {
+        totalUsers: await prisma.user.count(),
+        totalAdmins: await prisma.admin.count(),
+        totalHosts: await prisma.host.count(),
+        totalEvents: await prisma.event.count(),
+        totalRevenue: await prisma.payment.count(),
+    }
+}
+
+const getAdminActivities = async (limit=10): Promise<AdminActivities[]> => {
+
+    const activities: AdminActivities[] = [
+        {
+            id: '1',
+            type: 'USER',
+            title: 'New user registered',
+            description: 'john.doe@gmail.com joined the platform',
+            createdAt: new Date().toISOString()
+        },
+        {
+            id: '2',
+            type: 'EVENT',
+            title: 'New event created',
+            description: 'Tech Meetup 2026 created by Host Alex',
+            createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString()
+        },
+        {
+            id: '3',
+            type: 'HOST',
+            title: 'Host approved',
+            description: 'Host Sarah approved by admin',
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
+        },
+        {
+            id: '4',
+            type: 'PAYMENT',
+            title: 'Payment received',
+            description: '$120 payment for Startup Workshop',
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString()
+        }
+    ];
+
+    return activities.slice(0, limit);
+};
+
+
 export const AdminService = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
     deleteFromDB,
-    softDeleteFromDB
+    softDeleteFromDB,
+    getAdminStats,
+    getAdminActivities
 }

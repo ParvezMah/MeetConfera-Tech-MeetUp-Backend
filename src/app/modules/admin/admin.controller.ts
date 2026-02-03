@@ -72,6 +72,29 @@ const softDeleteFromDB = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+const getAdminStats = catchAsync(async (req: Request, res: Response) => {
+    const result = await AdminService.getAdminStats();
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Admin stats fetched successfully!",
+        data: result
+    })
+});
+
+const getAdminActivities = catchAsync(async (req: Request, res: Response) => {
+    const limit = Number(req.query.limit) || 10;
+    const result = await AdminService.getAdminActivities();
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Admin Activities for Dashboard fetched successfully",
+        data: result
+    })
+})
+
 
 
 export const AdminController = {
@@ -79,5 +102,7 @@ export const AdminController = {
     getByIdFromDB,
     updateIntoDB,
     deleteFromDB,
-    softDeleteFromDB
+    softDeleteFromDB,
+    getAdminStats,
+    getAdminActivities
 }
