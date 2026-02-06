@@ -14,13 +14,18 @@ router.get('/',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.getAllFromDB
 );
-
-router.get('/stats', 
+ 
+router.get('/stats',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.getAdminStats
 )
 
-router.get('/activities',
+router.get('/stats/charts',
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+    AdminController.getDashboardChartData
+)
+
+router.get('/recent-activities',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.getAdminActivities
 )

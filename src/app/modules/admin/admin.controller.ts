@@ -95,7 +95,16 @@ const getAdminActivities = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const getDashboardChartData = catchAsync(async (req: Request, res: Response) => {
+    const result = await AdminService.getDashboardChartData();
 
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Dashboard chart data fetched successfully",
+        data: result
+    })
+})
 
 export const AdminController = {
     getAllFromDB,
@@ -104,5 +113,6 @@ export const AdminController = {
     deleteFromDB,
     softDeleteFromDB,
     getAdminStats,
-    getAdminActivities
+    getAdminActivities,
+    getDashboardChartData
 }

@@ -169,41 +169,179 @@ const getAdminStats = async (): Promise<AdminStats> => {
     }
 }
 
-const getAdminActivities = async (limit=10): Promise<AdminActivities[]> => {
+const getAdminActivities = async (limit = 10): Promise<AdminActivities[]> => {
+    // Fetch recent users
+    const recentUsers = await prisma.user.findMany({
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, email: true, createdAt: true }
+    });
+
+    // Fetch recent events
+    const recentEvents = await prisma.event.findMany({
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, eventName: true, createdAt: true, host: { select: { name: true } } }
+    });
+
+    // Fetch recent hosts (approved)
+    const recentHosts = await prisma.host.findMany({
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, name: true, createdAt: true }
+    });
+
+    // Fetch recent payments (using Participant as proxy if Payment table doesn't have createdAt, 
+    // but assuming we want to show payment activities. 
+    // The previous plan said Payment table lacks createdAt, checking Participant)
+    const recentPayments = await prisma.payment.findMany({
+        take: limit,
+        orderBy: { participant: { createdAt: 'desc' } }, // Assuming logic or using payment data if available
+        select: { id: true, amount: true, event: { select: { eventName: true } }, participant: { select: { createdAt: true } } }
+    });
+
 
     const activities: AdminActivities[] = [
-        {
-            id: '1',
-            type: 'USER',
+        ...recentUsers.map(u => ({
+            id: u.id,
+            type: 'USER' as const,
             title: 'New user registered',
-            description: 'john.doe@gmail.com joined the platform',
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: '2',
-            type: 'EVENT',
+            description: `${u.email} joined the platform`,
+            createdAt: u.createdAt.toISOString()
+        })),
+        ...recentEvents.map(e => ({
+            id: e.id,
+            type: 'EVENT' as const,
             title: 'New event created',
-            description: 'Tech Meetup 2026 created by Host Alex',
-            createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString()
-        },
-        {
-            id: '3',
-            type: 'HOST',
-            title: 'Host approved',
-            description: 'Host Sarah approved by admin',
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
-        },
-        {
-            id: '4',
-            type: 'PAYMENT',
+            description: `${e.eventName} by ${e.host.name}`,
+            createdAt: e.createdAt.toISOString()
+        })),
+        ...recentHosts.map(h => ({
+            id: h.id,
+            type: 'HOST' as const,
+            title: 'Host joined',
+            description: `Host ${h.name} joined`,
+            createdAt: h.createdAt.toISOString()
+        })),
+        ...recentPayments.map(p => ({
+            id: p.id,
+            type: 'PAYMENT' as const,
             title: 'Payment received',
-            description: '$120 payment for Startup Workshop',
-            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString()
-        }
+            description: `$${p.amount} for ${p.event.eventName}`,
+            createdAt: p.participant.createdAt.toISOString()
+        }))
     ];
+
+    // Sort combined activities by date desc
+    activities.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return activities.slice(0, limit);
 };
+
+const getDashboardChartData = async () => {
+    // 1. Event Bookings Trend (Last 30 days) - Using Participant creation as booking
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const bookings = await prisma.participant.groupBy({
+        by: ['createdAt'],
+        where: {
+            createdAt: { gte: thirtyDaysAgo }
+        },
+        _count: { id: true },
+    });
+
+    // Process bookings into daily counts
+    const bookingsMap = new Map<string, number>();
+    bookings.forEach(b => {
+        const date = b.createdAt.toISOString().split('T')[0];
+        bookingsMap.set(date, (bookingsMap.get(date) || 0) + b._count.id);
+    });
+
+    const eventBookingsData = [];
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        eventBookingsData.push({
+            date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            bookings: bookingsMap.get(dateStr) || 0
+        });
+    }
+
+
+    // 2. User Registration Trend (Last 5 weeks)
+    // Simplify: Just last 30 days for now to keep it simpler or grouping by week is complex in raw JS without DB helpers
+    // Let's do daily for users too, or 4 weeks
+    const users = await prisma.user.groupBy({
+        by: ['createdAt'],
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        _count: { id: true }
+    });
+
+    // Group into weeks
+    const userRegistrationData = [];
+    // ... logic to group by week ... 
+    // For simplicity, let's return last 4 weeks count
+    // (Pseudocode simplified for implementing robustly)
+    // Actually, let's stick to the requested structure: week 1, week 2...
+
+    // Alternative: Just group by day for now or standard implementation
+    // Let's return the same structure as mock for consistency but real data
+    // Implementing a simple week grouper:
+    const weekCounts = [0, 0, 0, 0, 0];
+    const now = new Date();
+    users.forEach(u => {
+        const diffTime = Math.abs(now.getTime() - u.createdAt.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const weekIndex = Math.floor(diffDays / 7);
+        if (weekIndex < 5) {
+            weekCounts[4 - weekIndex] += u._count.id; // 4 is latest week
+        }
+    });
+
+    const userRegistrationDataFinal = weekCounts.map((count, i) => ({
+        week: `Week ${i + 1}`,
+        users: count
+    }));
+
+
+    // 3. Events by Category
+    const categoryGroups = await prisma.event.groupBy({
+        by: ['category'],
+        _count: { id: true }
+    });
+    const eventCategoryData = categoryGroups.map(g => ({
+        name: g.category,
+        value: g._count.id
+    }));
+
+
+    // 4. Event Status Distribution
+    const statusGroups = await prisma.event.groupBy({
+        by: ['status'],
+        _count: { id: true }
+    });
+    const statusColors: Record<string, string> = {
+        OPEN: "#3b82f6",
+        ONGOING: "#10b981", // Mapping arbitrary status to colors
+        COMPLETED: "#8b5cf6",
+        CANCELED: "#ef4444"
+    };
+
+    const eventStatusData = statusGroups.map(g => ({
+        name: g.status,
+        value: g._count.id,
+        color: statusColors[g.status] || "#94a3b8"
+    }));
+
+    return {
+        eventBookingsData,
+        userRegistrationData: userRegistrationDataFinal,
+        eventCategoryData,
+        eventStatusData
+    };
+}
 
 
 export const AdminService = {
@@ -213,5 +351,6 @@ export const AdminService = {
     deleteFromDB,
     softDeleteFromDB,
     getAdminStats,
-    getAdminActivities
+    getAdminActivities,
+    getDashboardChartData
 }
