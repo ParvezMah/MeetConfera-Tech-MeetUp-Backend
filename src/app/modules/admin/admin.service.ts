@@ -124,7 +124,6 @@ const deleteFromDB = async (id: string): Promise<Admin | null> => {
     return result;
 }
 
-
 const softDeleteFromDB = async (id: string): Promise<Admin | null> => {
     await prisma.admin.findUniqueOrThrow({
         where: {
@@ -157,7 +156,6 @@ const softDeleteFromDB = async (id: string): Promise<Admin | null> => {
 
     return result;
 }
-
 
 const getAdminStats = async (): Promise<AdminStats> => {
     return {
@@ -202,33 +200,33 @@ const getAdminActivities = async (limit = 10): Promise<AdminActivities[]> => {
 
 
     const activities: AdminActivities[] = [
-        ...recentUsers.map(u => ({
-            id: u.id,
+        ...recentUsers.map(user => ({
+            id: user.id,
             type: 'USER' as const,
             title: 'New user registered',
-            description: `${u.email} joined the platform`,
-            createdAt: u.createdAt.toISOString()
+            description: `${user.email} joined the platform`,
+            createdAt: user.createdAt.toISOString()
         })),
-        ...recentEvents.map(e => ({
-            id: e.id,
+        ...recentEvents.map(event => ({
+            id: event.id,
             type: 'EVENT' as const,
             title: 'New event created',
-            description: `${e.eventName} by ${e.host.name}`,
-            createdAt: e.createdAt.toISOString()
+            description: `${event.eventName} by ${event.host.name}`,
+            createdAt: event.createdAt.toISOString()
         })),
-        ...recentHosts.map(h => ({
-            id: h.id,
+        ...recentHosts.map(host => ({
+            id: host.id,
             type: 'HOST' as const,
             title: 'Host joined',
-            description: `Host ${h.name} joined`,
-            createdAt: h.createdAt.toISOString()
+            description: `Host ${host.name} joined`,
+            createdAt: host.createdAt.toISOString()
         })),
-        ...recentPayments.map(p => ({
-            id: p.id,
+        ...recentPayments.map(payment => ({
+            id: payment.id,
             type: 'PAYMENT' as const,
             title: 'Payment received',
-            description: `$${p.amount} for ${p.event.eventName}`,
-            createdAt: p.participant.createdAt.toISOString()
+            description: `$${payment.amount} for ${payment.event.eventName}`,
+            createdAt: payment.participant.createdAt.toISOString()
         }))
     ];
 

@@ -14,7 +14,7 @@ router.get('/',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.getAllFromDB
 );
- 
+
 router.get('/stats',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.getAdminStats
@@ -51,5 +51,9 @@ router.delete('/soft-delete/:id',
     roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
     AdminController.softDeleteFromDB
 );
+
+
+
+
 
 export const AdminRoutes = router;
