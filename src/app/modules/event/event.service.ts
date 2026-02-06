@@ -13,7 +13,6 @@ const getAllEvents = async () => {
   return result;
 }
 
-
 const getSingleEventById = async (eventId: string) => {
   const result = await prisma.event.findUnique({
     where : { id : eventId},
@@ -29,12 +28,6 @@ const getSingleEventById = async (eventId: string) => {
 
   return result
 }
-
-
-
-
-
-
 
 export const EventService = {
   getAllEvents,
