@@ -259,7 +259,7 @@ const getMyProfile = async (user: IAuthUser) => {
                 email: true,
                 profilePhoto: true,
                 contactNumber: true,
-                location: true,
+                // location: true,
                 averageRating: true,
                 isDeleted: true,
                 createdAt: true,
@@ -271,18 +271,7 @@ const getMyProfile = async (user: IAuthUser) => {
         profileInfo = await prisma.participant.findFirst({
             where: {
                 userId: userInfo.id,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                profilePhoto: true,
-                contactNumber: true,
-                location: true,
-                isDeleted: true,
-                createdAt: true,
-                updatedAt: true,
-            },
+            }
         });
     }
 

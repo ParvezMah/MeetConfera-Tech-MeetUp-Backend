@@ -3,16 +3,16 @@ import httpStatus from "http-status";
 
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
-import { IJWTPayload } from "../../types/common";
 import { ReviewService } from "./review.service";
 import pick from "../../helpers/pick";
 import { reviewFilterableFields } from "./review.constant";
+import { JwtPayload } from "jsonwebtoken";
 
 
 const createReview = catchAsync(
   async (req: Request & { user?: any }, res: Response) => {
     const user = req.user;
-    const result = await ReviewService.createReview(user as IJWTPayload, req.body);
+    const result = await ReviewService.createReview(user as JwtPayload, req.body);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,

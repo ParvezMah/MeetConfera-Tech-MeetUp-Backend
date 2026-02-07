@@ -53,7 +53,7 @@ router.post("/create-event",
 
 // Update an event (only by the host who owns it)
 router.patch("/update-event/:id",
-    roleBasedAuth(UserRole.HOST),
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.updateEvent
 );
 
@@ -61,22 +61,22 @@ router.patch("/update-event/:id",
 
 // Delete an event (only by the host who owns it)
 router.delete("/:eventId",
-    roleBasedAuth(UserRole.HOST),
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.deleteEvent
 );
 
 router.patch('/update-host/:id',
-    roleBasedAuth(UserRole.HOST),
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.updateHost
 );
 
 router.delete('/:id',
-    roleBasedAuth(UserRole.HOST),
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.deleteHost
 );
 
 router.delete('/soft-delete/:id',
-    roleBasedAuth(UserRole.HOST),
+    roleBasedAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.HOST),
     HostController.softDeleteHost
 );
 
