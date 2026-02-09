@@ -4,6 +4,7 @@ import sendResponse from "../../shared/sendResponse";
 import { PaymentService } from "./payment.service";
 import { stripe } from "../../helpers/stripe";
 import config from "../../../config";
+import httpStatus from "http-status"
 
 // const handleStripeWebhookEvent = catchAsync(async (req: Request, res: Response) => {
 //     const sig = req.headers["stripe-signature"] as string;
@@ -45,7 +46,7 @@ const handleStripeWebhookEvent = catchAsync(async (req: Request, res: Response) 
     const result = await PaymentService.handleStripeWebhookEvent(event);
 
     sendResponse(res, {
-        statusCode: 200,
+        statusCode: httpStatus.OK,
         success: true,
         message: "Stripe webhook processed successfully",
         data: result,
@@ -53,8 +54,22 @@ const handleStripeWebhookEvent = catchAsync(async (req: Request, res: Response) 
 });
 
 
+const getAllPayments = catchAsync(async (req: Request, res: Response)=> {
+
+    const result =await PaymentService.getAllPayments();
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Payments retrieved successfully",
+        data: result
+    })
+})
+
+
 
 
 export const PaymentController = {
-    handleStripeWebhookEvent
+    handleStripeWebhookEvent,
+    getAllPayments
 };

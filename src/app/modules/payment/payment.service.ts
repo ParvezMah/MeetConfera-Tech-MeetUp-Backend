@@ -90,8 +90,16 @@ const handleStripeWebhookEvent = async (event: Stripe.Event) => {
 };
 
 
+const getAllPayments = async () => {
+    const result =await prisma.payment.findMany();
+
+    return result;
+}
+
+
 
 
 export const PaymentService = {
-    handleStripeWebhookEvent
+    handleStripeWebhookEvent,
+    getAllPayments
 };
